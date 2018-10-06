@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- 1. Functionality to add in: update total of items on the fly
+		i.e. take practice + experimental * 3.
+	 2. Add in run length for correct direction of response. -->
+
+<head>
+	<title>Numerical Stroop</title>
+	<link rel="stylesheet" type="text/css" href="stroopCSS.css">
+</head>
+
+<body>
+	<header>
+		<h1 class="heading">Numerical Stroop</h1>
+		<h2>...welcome</h2>
+	</header>
+
+	<section id="mainText">
+		<p id="introducionText">
+		You will see two numbers presented side by side, sometimes in different font sizes.<br>
+
+		Your task is to select the <b>highest value</b>, ignoring the font size, using the <b>left</b> and <b>right arrow keys</b>.<br>
+
+		To see the next set of numbers, press the <b>space bar</b>. <br>
+		You'll only get one go at each pair, and your decision is final, so try to be as accurate as possible!<br></p>
+
+		<p id="formText">Before taking part, please provide your age and gender (if you are comfortable to do so), and enter how many runs of the items you'd like to see. For each run, you'll see 6 items.<br>
+		</p>
+	</section>
+
+	<form name="demoForm" action="../Numerical Stroop/numStroop.html"
+	onsubmit=" return validateForm()" method="post">
+		Trials:<br>
+		<input type="number" name="practiceNumeric" placeholder="Practice Runs (e.g. 1 run = 6 items)" id="practiceNumericBox" min="1" max="140"><br>
+		<input type="number" name="experimentalNumeric" placeholder="Experimental Runs (e.g. 10 runs = 60 items)" id="experimentalNumericBox" min="1" max="140"> <br>
+
+		Gender:<br>
+		<input type="radio" name="genderRadio" value ="NA" id="NA" checked> I'd rather not say<br>
+		<input type="radio" name="genderRadio" value ="male" id="male"> Male<br>
+		<input type="radio" name="genderRadio" value ="female" id="female"> Female<br>
+		<input type="radio" name="genderRadio" value ="other" id="other"> Other<br>
+		If Other, please state: <br>
+		<input type="text" name="genderString" id="genderStringBox" disabled> <br>
+
+		Age:<br>
+		<input type="number" name="ageNumeric" placeholder="Note: Must be over 18" id="ageNumericBox" min="18" max="140"><br>
+		<input type="checkbox" name="ageCheckBox" id="ageCheckBox"> I'd rather not say<br>
+		<input type="submit">
+		<input type="reset">
+	</form>
+
+	<script>
+		//check for private browsing mode in Safari. Send warning if so (can't store local storage in private Safari mode)
+		try { // try to use localStorage
+			localStorage.test = 2;
+		} catch (e) {
+		// there was an error so...
+		alert('You are in Privacy Mode\nPlease deactivate Privacy Mode and then reload the page.');
+		}
+
+		//wait for change in the radio buttons, enable text box only when other is selected
+		document.getElementById("NA").onchange = displayTextBox;
+		document.getElementById("male").onchange = displayTextBox;
+		document.getElementById("female").onchange = displayTextBox;
+		document.getElementById("other").onchange = displayTextBox;
+
+		var textBox = document.getElementById("genderStringBox");
+
+		function displayTextBox(evt) {
+			if (evt.target.value === "other") {
+				textBox.disabled = false;
+			} else {
+				textBox.disabled = true;
+				textBox.value = "";
+			}
+		}
+
+		//check for change from age box to clicking rather not say
+		//disable number box and clear contents if rather not say is selected
+		document.getElementById('ageCheckBox').onchange = function() {
+		    document.getElementById('ageNumericBox').disabled = this.checked;
+		    document.getElementById('ageNumericBox').value = "";
+		};
+
+		function validateForm() {
+			var practiceTrialNumeric = document.forms["demoForm"]["practiceNumeric"].value;
+			var experimentalTrialNumeric = document.forms["demoForm"]["experimentalNumeric"].value;
+			var ageCheckNumeric = document.forms["demoForm"]["ageNumeric"].value;
+			var ageCheckCheckBox = document.forms["demoForm"]["ageCheckBox"].checked;
+			var genderCheckRadio = document.forms["demoForm"]["genderRadio"].value;
+			var genderCheckString = document.forms["demoForm"]["genderString"].value;
+
+			//kick out a warning if no values entered for age
+			if (ageCheckNumeric === "" && ageCheckCheckBox === false) {
+				alert("Please enter a valid age, or click to indicate that you'd rather not state your age.");
+				return false;
+			}
+
+			//send user response to local storage for output with results
+			//preference for 'rather not say' (NA) over any entry (accounts for user error)
+			if (ageCheckCheckBox === true) {
+				localStorage.setItem("ageData", 'NA');
+			} else if (ageCheckCheckBox === false) {
+				localStorage.setItem("ageData", ageCheckNumeric);
+			}
+
+			//kick out a warning if no values entered for gender
+			if (genderCheckRadio === "other" && genderCheckString === "") {
+				alert("Please type your gender if you have selected other, or pick another option.")
+				return false;
+			} else if (genderCheckRadio === "other" && genderCheckString !== "") {
+				localStorage.setItem("genderData", genderCheckString);
+			} else if (genderCheckRadio !== "other") {
+				localStorage.setItem("genderData", genderCheckRadio);
+			}
+
+			//kick out a warning if no values entered for practice and experimental trial runs
+			if (practiceTrialNumeric === "" && experimentalTrialNumeric === "") {
+				alert("Please enter a valid number of practice and experimental trial runs.");
+				return false;
+			} else if (practiceTrialNumeric === "" && experimentalTrialNumeric !== "") {
+				alert("Please enter a valid number of practice trial runs.")
+				return false;
+			} else if (practiceTrialNumeric !== "" && experimentalTrialNumeric === "") {
+				alert("Please enter a valid number of practice experimental runs.")
+				return false;
+			} else if (practiceTrialNumeric !== "" && experimentalTrialNumeric !== "") {
+				localStorage.setItem("practiceRuns", practiceTrialNumeric);
+				localStorage.setItem("experimentalRuns", experimentalTrialNumeric);
+			}
+		}
+	</script>
+</body>
+
+</html>
+
+<!--
+use HTML form for demographic data.
+ usually given a php file, send data to php file
+ ...but we don't have a server so we
+ just give it the next page rather than a php file
+ when you click submit, open the next page.
+
+ If form is successful, store the values in local storage other page,
+ get information from localStorage.getValue("key");
+ that will return value stored in it.
+-->
