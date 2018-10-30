@@ -3,11 +3,11 @@ Numerical Stroop Task: Highest Value
 -------------------------------------------------------------------------------------------------------------
 BUG: If people get only 1 set of 3 items, then they are all assigned to the left.
 BUG: If you get an odd number of items, the first 3 items will always be left.
-FIX: *item generation by even number (i.e. *6) 
+FIX: *item generation by even number (i.e. *6)
 		so you get even numbers of conditions and left/right correct responses
 */
 
-var globalGlenn = {state: 'FIXATION_SCREEN', numberSet: [], trialNumber: 0, leftRightPressed: false, 
+var globalGlenn = {state: 'FIXATION_SCREEN', numberSet: [], trialNumber: 0, leftRightPressed: false,
 startTime: Date.now(), endTime: 0, RT: 0, section: 'practice'};
 
 window.addEventListener('keydown', fixScreen, false);
@@ -56,7 +56,7 @@ function getNumbers() {
 	leftValue.innerHTML = globalGlenn.numberSet[globalGlenn.trialNumber].first;
 	rightValue.innerHTML = globalGlenn.numberSet[globalGlenn.trialNumber].second;
 	if (globalGlenn.numberSet[globalGlenn.trialNumber].condition === "congruent") {
-		if (globalGlenn.numberSet[globalGlenn.trialNumber].first > 
+		if (globalGlenn.numberSet[globalGlenn.trialNumber].first >
 			globalGlenn.numberSet[globalGlenn.trialNumber].second) {
 			document.getElementById('leftValue').style = "font-size: 12em;";
 		}
@@ -65,7 +65,7 @@ function getNumbers() {
 		}
 	}
 	else if (globalGlenn.numberSet[globalGlenn.trialNumber].condition === "incongruent") {
-		if (globalGlenn.numberSet[globalGlenn.trialNumber].first > 
+		if (globalGlenn.numberSet[globalGlenn.trialNumber].first >
 			globalGlenn.numberSet[globalGlenn.trialNumber].second) {
 			document.getElementById('rightValue').style = "font-size: 12em;";
 		}
@@ -82,12 +82,12 @@ function fixScreen(e) {
 	var fixCross = document.getElementById('fixCross');
 	var leftValue = document.getElementById('leftValue');
 	var rightValue = document.getElementById('rightValue');
-	
+
 	//define time start of trial
 	//listen for user response
 
 	//if left pressed or right pressed, record these events
-	if ((globalGlenn.leftRightPressed === false) && (e.key === 'ArrowLeft') 
+	if ((globalGlenn.leftRightPressed === false) && (e.key === 'ArrowLeft')
 		&& (globalGlenn.state === 'EXPERIMENTAL_SCREEN')) {
 		//stop progression/changing answers
 		globalGlenn.leftRightPressed = true;
@@ -98,7 +98,7 @@ function fixScreen(e) {
 		// RT = trial end - trial start
 		globalGlenn.numberSet[globalGlenn.trialNumber].RT = globalGlenn.RT //push RT;
 		document.getElementById('leftValue').style.border = "4px black solid";
-	} else if ((globalGlenn.leftRightPressed === false) && (e.key === 'ArrowRight') 
+	} else if ((globalGlenn.leftRightPressed === false) && (e.key === 'ArrowRight')
 		&& (globalGlenn.state === 'EXPERIMENTAL_SCREEN')) {
 		//stop progression/changing answers
 		globalGlenn.leftRightPressed = true;
@@ -120,11 +120,11 @@ function fixScreen(e) {
 		globalGlenn.state = 'FIXATION_SCREEN';
 		fixCross.innerHTML = '+';
 		leftValue.innerHTML = '';
-		rightValue.innerHTML = '';		
+		rightValue.innerHTML = '';
 		globalGlenn.trialNumber += 1;
 
 		//keep running trials or not?
-		//if you still have some trials left to run, then keep running the trials		
+		//if you still have some trials left to run, then keep running the trials
 		if (globalGlenn.trialNumber < globalGlenn.numberSet.length) {
 			setTimeout(getNumbers, 750);
 			//otherwise, if you've finished your trials, see if you're on the practice screen
@@ -134,27 +134,27 @@ function fixScreen(e) {
 			fixCross.innerHTML = '';
 			leftValue.innerHTML = '';
 			rightValue.innerHTML = '';
-			document.getElementById('questionText').innerHTML = 
-			'Well done! \n If you have any questions about the study, ask now.<br> Otherwise, please press <b>Enter</b> to continue.'; 
+			document.getElementById('questionText').innerHTML =
+			'Well done! \n If you have any questions about the study, ask now.<br> Otherwise, please press <b>Enter</b> to continue.';
 			//check for experimental trials being complete. If so, start the debrief section
 		} else if ((globalGlenn.trialNumber >= globalGlenn.numberSet.length) && (globalGlenn.section === 'experimental')) {
 			//stop: can't progress (run out of trials)
 			window.removeEventListener('keydown', fixScreen);
 			//force next screen -- debrief & results
 			createDebriefScreen();
-		} 
+		}
 	}
 
 	//progress from the question screen if you're on it. Run the experimental trials if enter is pressed
-	if ((e.key === 'Enter') && (globalGlenn.trialNumber >= globalGlenn.numberSet.length) && 
-	(globalGlenn.section === 'practice')) { 
+	if ((e.key === 'Enter') && (globalGlenn.trialNumber >= globalGlenn.numberSet.length) &&
+	(globalGlenn.section === 'practice')) {
 	//remove text
 	var parent = document.getElementById('questionDiv');
 	var child = document.getElementById('questionText');
 	parent.removeChild(child);
 
 	experimentalSection();
-	}	
+	}
 }
 
 //randomise array
@@ -163,7 +163,7 @@ function randomiseArray(array) {
 	for (var i = 0; i < array.length; i++) {
 		array[i].value = Math.random();
 	}
-	
+
 	//create a function to compare objects by their random values
 	function compareNumber(a, b) {
 		return (a.value) - (b.value);
@@ -219,7 +219,7 @@ function generateItemsForCondition(condition, itemNumber) {
 			while (valSecond === valFirst) {
 				valSecond = Math.floor(Math.random()*10);
 			}
-			
+
 			//compare values, see which is largest for each item; half go left, half right
 			if (valFirst > valSecond) {
 				bigger = valFirst;
@@ -278,7 +278,7 @@ function drawItemsFromCondition(conditionOne, conditionTwo, conditionThree, runl
 
 		diceThrowPrevPrev = diceThrowPrev;
 		diceThrowPrev = diceThrow;
-		
+
 		//roll a 3 sided die
 		diceThrow = getRandomInt(1, 3);
 
@@ -356,7 +356,7 @@ function createDebriefScreen() {
 	//delete the elements for the numbers & fix cross
 	//need to retrieve parent and child elements to do so
 	removeDisplayElements();
-		
+
 	//create title, table, and elements
 	var tableTitle = document.createElement("H1");
 	var tableTitleText = document.createTextNode("Results: Experimental Items");
@@ -371,9 +371,9 @@ function createDebriefScreen() {
 	//instantiate the variables to output
 	var tableRow;
 	var cellData;
-	var tableCellHeadings = ['Item Number', 'Condition', 'Left Value', 'Right Value', 
+	var tableCellHeadings = ['Item Number', 'Condition', 'Left Value', 'Right Value',
 	'Correct Response', 'User Response', 'Response Match?', 'Reaction Time', 'Age', 'Gender'];
-	var varyingIndexes = ['value', 'condition', "first", "second", 
+	var varyingIndexes = ['value', 'condition', "first", "second",
 	'correct_response', 'userResponse', 'correct', 'RT', 'age', 'gender'];
 
 	//add titles
@@ -400,7 +400,7 @@ function createDebriefScreen() {
 
 			//switch statement: if values aren't stored in the data, calculate them on the fly
 			switch (varyingIndexes[cellResponses]) {
-				case 'value': 
+				case 'value':
 					cellData.innerHTML = globalGlenn.numberSet[cellRows].value +1;
 					break;
 				case 'correct':
@@ -428,74 +428,3 @@ function createDebriefScreen() {
 	document.body.appendChild(debriefElement);
 	document.body.appendChild(outputTable);
 }
-
-/*
-numerical Stroop task -- questions to address:
-----------------------------------------------
-
-The first step in implementing your experiment is assessing the hardware and software requirements.
-It is predetermined that the experiment will run in web browsers and the application will be developed in JavaScript and will run entirely on the client-side (no server-side storage or processing).
- 
-Ask yourself the following questions:
-
-Numerical Stroop; 4 conditions;
-
-Values -- 'Pick the highest value':
-Congruent - big(5); small (3)
-Incongruent - big(3); small(5)
-Neutral - big(3); big(5)
-
-Sizes -- 'Pick the physically largest number'
-Congruent - big(5); small (3)
-Incongruent - big(3); small(5)
-Neutral - big(3); big(3)
-
- 
-1.       General:
-a. What are the goals of this application? 
-	Present one of three conditions, values randomly allocated, sizes determined algorithmically. 
-	Save results in a csv for download, or present on screen. Save RT and correct/incorrect responses.
-
-b. What is the target audience? 
-	University students
-
-c. What hardware and software will be used to run the experiment? Desktops, mobiles or both? User input devices? Operating systems? Web browsers?
-	Windows/Mac/Linux. Must be laptop or desktop. Input = keyboard. All web-browsers possible (Opera, IE, Chrome, Firefox, Edge)
-
-d. In what environments will the user run the application?
-	Any, I suppose. I have no control aside from my own instructions.
-
-2.       Design:
-What are the sections (application states) of the experiment?
-How does each section look like? Sketch this.
-What needs to happen in each section? 
-	Welcome screen & instructions, click button on screen to progress, fixation cross (timed to progress), 
-		value screen (left / right to progress), loop fixation cross, drop out to debrief & results
-                
-                What is presented to the user? 
-                	2 digits, each side of screen. Size can vary.
-                What is the user interface (how does the user interact with the application)? left arrow, right arrow, click.
-                What happens under the various conditions and situations that arise in the experiment?
-                	If going for values: Randomly select order for 10/10/10 in condition (assuming 30 items)
-                	Generate condition: Randomly select one value between 0-9:
-						Congruent: Randomly select a value above or below this value. Assign the highest value to left or right randomly (with run length to track assignment; 
-							this means that you have balanced left/right responses). Give highest value the biggest font size. Track if response matches highest value size, and RT.
-						Incongruent: Same as above, but give lowest value the biggest font size. 
-						Neutral: Same as above, but give both values the same font size randomly. 
-
-
-                What options does the user have during these situations and what is the outcome of each choice? Left, right, hint for responses?
-                
-                What information are we storing? What type is this information (number, boolean, string, array, etc)? Selected side, side of highest value, boolean (did they match or not), RT.
-
-When does the user transition from section to section? 
-	After response they click space, after which they'll see a fixation cross which stays on screen for a fixed perior before going back to the response screens.
-
-Consider user misbehaviour and noncompliance of all sorts. How does the application react?
-	No response to false inputs, too many inputs, maybe a hint pops up?
-
-Do the answers to these questions depend on the particular user, hardware, operating system or browser?
-	Timing (RT) will be hardware/browser dependent, boolean responses probably not. Use a smaller screen for experiment that screen limits and scale to fit v. small screens. 
-
-We avoid loading new pages between items to maintain good timing.
-*/
