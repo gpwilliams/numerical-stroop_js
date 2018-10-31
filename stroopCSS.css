@@ -67,12 +67,18 @@ table {
     border-collapse: collapse;
 }
 
+td, th {
+    border: 1px solid #bde0ff
+    padding: 8px;
+}
+
 tr:nth-child(even){background-color: #f2f2f2}
 
-th, td {
+tr:hover {background-color: #a0d2f4;}
+
+th {
     background-color: #0099ff;
-    color: white;
-    padding: 8px;
+    color: #ffffff
 }
 
 body {

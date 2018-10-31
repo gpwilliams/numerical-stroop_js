@@ -3,14 +3,19 @@ Numerical Stroop Task: Highest Value
 -------------------------------------------------------------------------------------------------------------
 BUG: If people get only 1 set of 3 items, then they are all assigned to the left.
 BUG: If you get an odd number of items, the first 3 items will always be left.
-FIX: *item generation by even number (i.e. *6)
-		so you get even numbers of conditions and left/right correct responses
+FIX: multiply item generation by even number (i.e. *6) 
+        so you get even numbers of conditions & left/right correct responses
 */
 
+// stop linting problems for global vars (up to setTimeout) vars defined in other functions
+/*global window document localStorage setTimeout fixCross leftValue rightValue */
+
+// define variables in global scope
 var globalGlenn = {state: 'FIXATION_SCREEN', numberSet: [], trialNumber: 0, leftRightPressed: false,
-startTime: Date.now(), endTime: 0, RT: 0, section: 'practice'};
+startTime: Date.now(), endTime: 0, RT: 0, section: 'practice', trialTimeout: 750};
 
 window.addEventListener('keydown', fixScreen, false);
+
 window.onload = function() {
 	//run the practice section function; do one run (i.e. 1 version of each condition (1*6))
 	practiceSection();
@@ -18,17 +23,19 @@ window.onload = function() {
 
 function generateFinalItems(nTotal) {
 	var totalItems = nTotal;
-	var congruentItems = generateItemsForCondition('congruent', totalItems/3);
-	var incongruentItems = generateItemsForCondition('incongruent', totalItems/3);
-	var neutralItems = generateItemsForCondition('neutral', totalItems/3);
+    var conditionCount = 3;
+	var congruentItems = generateItemsForCondition('congruent', totalItems/conditionCount);
+	var incongruentItems = generateItemsForCondition('incongruent', totalItems/conditionCount);
+	var neutralItems = generateItemsForCondition('neutral', totalItems/conditionCount);
 	globalGlenn.numberSet = drawItemsFromCondition(congruentItems, incongruentItems, neutralItems, totalItems);
 }
 
 function practiceSection() {
-	//multiply the entry by 3 to allow for presentation of an equal number of items from each condition
-	generateFinalItems((localStorage.getItem("practiceRuns"))*6);
+	//multiply the entry by 6 to allow for presentation of an equal number of items from each condition
+    var itemMultiple = 6; // should be globally accessible
+	generateFinalItems((localStorage.getItem("practiceRuns"))*itemMultiple);
 	//create text elements for introduction
-	setTimeout(getNumbers, 750);
+	setTimeout(getNumbers, globalGlenn.trialTimeout);
 }
 
 function experimentalSection() {
@@ -40,7 +47,7 @@ function experimentalSection() {
 	fixCross.innerHTML = '+';
 	leftValue.innerHTML = '';
 	rightValue.innerHTML = '';
-	setTimeout(getNumbers, 750);
+	setTimeout(getNumbers, globalGlenn.trialTimeout);
 }
 
 function getNumbers() {
@@ -123,12 +130,12 @@ function fixScreen(e) {
 		rightValue.innerHTML = '';
 		globalGlenn.trialNumber += 1;
 
-		//keep running trials or not?
-		//if you still have some trials left to run, then keep running the trials
+		// keep running trials or not?
+		// if you still have some trials left to run, then keep running the trials
 		if (globalGlenn.trialNumber < globalGlenn.numberSet.length) {
-			setTimeout(getNumbers, 750);
-			//otherwise, if you've finished your trials, see if you're on the practice screen
-			//if so, replace the screen with a question
+			setTimeout(getNumbers, globalGlenn.trialTimeout);
+			// otherwise, if you've finished your trials, see if you're on the practice screen
+			// if so, replace the screen with a question
 		} else if ((globalGlenn.trialNumber >= globalGlenn.numberSet.length) && (globalGlenn.section === 'practice')) {
 			//check for practice trials being complete. If so, replace screen with question prior to progression
 			fixCross.innerHTML = '';
@@ -173,8 +180,8 @@ function randomiseArray(array) {
 	array.sort(compareNumber);
 
 	//return values back to proper order
-	for (var i = 0; i < array.length; i++) {
-		array[i].value = i;
+	for (var ii = 0; i < array.length; ii++) {
+		array[ii].value = ii;
 	}
 	//return the array
 	return array;
@@ -188,80 +195,44 @@ function generateItemsForCondition(condition, itemNumber) {
 	var valSecond = 0;
 	var valItem = [];
 	var bigger, smaller;
-
-	//incorrect values for left/right correct responses. has to take on first value, not bigger/smaller.
-	if (condition === 'congruent') {
-		for (nLength; nLength < itemNumber; nLength++) {
-			valFirst = Math.floor(Math.random()*10);
-			valSecond = Math.floor(Math.random()*10);
-			while (valSecond === valFirst) {
-				valSecond = Math.floor(Math.random()*10);
-			}
-			//compare values, see which is largest for each item; assign evenly to left and right values
-			if (valFirst > valSecond) {
-				bigger = valFirst;
-				smaller = valSecond;
-			} else {
-				bigger = valSecond;
-				smaller = valFirst;
-			}
-
-			if (nLength % 2 === 0) {
-				valItem.push({first: bigger, second: smaller, condition: 'congruent', correct_response: 'left'});
-			} else {
-				valItem.push({first: smaller, second: bigger, condition: 'congruent', correct_response: 'right'});
-			}
-		}
-	} else if (condition === 'incongruent') {
-		for (nLength; nLength < itemNumber; nLength++) {
-			valFirst = Math.floor(Math.random()*10);
-			valSecond = Math.floor(Math.random()*10);
-			while (valSecond === valFirst) {
-				valSecond = Math.floor(Math.random()*10);
-			}
-
-			//compare values, see which is largest for each item; half go left, half right
-			if (valFirst > valSecond) {
-				bigger = valFirst;
-				smaller = valSecond;
-			} else {
-				bigger = valSecond;
-				smaller = valFirst;
-			}
-
-			if (nLength % 2 === 0) {
-				valItem.push({first: bigger, second: smaller, condition: 'incongruent', correct_response: 'left'});
-			} else {
-				valItem.push({first: smaller, second: bigger, condition: 'incongruent', correct_response: 'right'});
-			}
-		}
-	} else if (condition === 'neutral') {
-		for (nLength; nLength < itemNumber; nLength++) {
-			valFirst = Math.floor(Math.random()*10);
-			valSecond = Math.floor(Math.random()*10);
-			while (valSecond === valFirst) {
-				valSecond = Math.floor(Math.random()*10);
-			}
-			//compare values, see which is largest for each item; half go left, half right
-			if (valFirst > valSecond) {
-				bigger = valFirst;
-				smaller = valSecond;
-			} else {
-				bigger = valSecond;
-				smaller = valFirst;
-			}
-
-			if (nLength % 2 === 0) {
-				valItem.push({first: bigger, second: smaller, condition: 'neutral', correct_response: 'left'});
-			} else {
-				valItem.push({first: smaller, second: bigger, condition: 'neutral', correct_response: 'right'});
-			}
-		}
-	}
+    var conditionID;
+    
+    for (nLength; nLength < itemNumber; nLength++) {
+        valFirst = Math.floor(Math.random()*10);
+        valSecond = Math.floor(Math.random()*10);
+        while (valSecond === valFirst) {
+            valSecond = Math.floor(Math.random()*10);
+        }  
+        
+        //compare values, see which is largest for each item; half go left, half right
+        if (valFirst > valSecond) {
+            bigger = valFirst;
+            smaller = valSecond;
+        } else {
+            bigger = valSecond;
+            smaller = valFirst;
+        }
+        
+        // define condition for pushing 
+        if (condition === 'congruent') {
+            conditionID = 'congruent';
+        } else if (condition === "incongruent") {
+            conditionID = 'incongruent';
+        } else if (condition === 'neutral') {
+            conditionID = 'neutral';
+        }
+        
+        // determine which item is larger
+        if(nLength % 2 == 0) {
+            valItem.push({first: bigger, second: smaller, correct_response: 'left', condition: conditionID});
+        } else {
+            valItem.push({first: smaller, second: bigger, correct_response: 'right', condition: conditionID});
+        }
+    }
 	return randomiseArray(valItem);
 }
 
-function drawItemsFromCondition(conditionOne, conditionTwo, conditionThree, runlength) {
+function drawItemsFromCondition(conditionOne, conditionTwo, conditionThree) {
 
 	var allItems = [];
 	var diceThrow = 0;
@@ -301,7 +272,6 @@ function drawItemsFromCondition(conditionOne, conditionTwo, conditionThree, runl
 				condTwoLoopCounter = 0;
 				condThreeLoopCounter = 0;
 				ii = -1;
-				console.log('hello, I crashed.');
 				break;
 			}
 		}
@@ -352,7 +322,6 @@ function removeDisplayElements() {
 
 function createDebriefScreen() {
 	//clear the elements for stimulus presentation
-
 	//delete the elements for the numbers & fix cross
 	//need to retrieve parent and child elements to do so
 	removeDisplayElements();
@@ -368,18 +337,13 @@ function createDebriefScreen() {
 	debriefElement.appendChild(debriefElementText);
 	var outputTable = document.createElement("table");
 
-	//instantiate the variables to output
+	//instantiate the variables to output (including cell headings)
 	var tableRow;
 	var cellData;
-	var tableCellHeadings = ['Item Number', 'Condition', 'Left Value', 'Right Value',
-	'Correct Response', 'User Response', 'Response Match?', 'Reaction Time', 'Age', 'Gender'];
+	var tableCellHeadings = ['Trial', 'Condition', 'Left Value', 'Right Value',
+	'Correct Response', 'User Response', 'Response Match?', 'Reaction Time (ms)', 'Age', 'Gender'];
 	var varyingIndexes = ['value', 'condition', "first", "second",
 	'correct_response', 'userResponse', 'correct', 'RT', 'age', 'gender'];
-
-	//add titles
-	//add results as a heading to identify the table
-	tableRow = document.createElement("tr");
-	outputTable.appendChild(tableRow);
 
 	//add individual cell headings (e.g. item number, condition)
 	tableRow = document.createElement("tr");
